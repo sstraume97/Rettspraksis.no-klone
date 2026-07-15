@@ -1,10 +1,11 @@
 {
   "backfill": {
-    "cmcontinue": "page|48522d313938392d313439332d53|171881",
+    "cmcontinue": "page|48522d313939392d31382d43|200652",
     "complete": false,
     "completed_courts": [],
     "current_court": "hoyesterett",
-    "pages_imported": 3
+    "pages_imported": 11003
   },
+  "last_published_ref": null,
   "last_rc_timestamp": null
 }
