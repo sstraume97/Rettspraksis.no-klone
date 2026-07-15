@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.venv/
+_book/
+_site/
+.quarto/
+*.log
+.DS_Store

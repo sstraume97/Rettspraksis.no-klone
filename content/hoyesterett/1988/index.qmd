@@ -1,0 +1,9 @@
+---
+title: "Høyesterett 1988"
+---
+
+Denne boken er en automatisk generert speiling av avgjørelser fra [Rettspraksis.no](https://rettspraksis.no), lisensiert [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.no). Se [LICENSE-CONTENT.md](https://github.com/sstraume97/Rettspraksis.no-klone/blob/main/LICENSE-CONTENT.md) for fullstendige vilkår. Boken inneholder 1 avgjørelser.
+
+| Instans | Dato | Publisert | Stikkord | Sammendrag | Saksgang | Parter | Forfatter | Lovhenvisninger |
+|---|---|---|---|---|---|---|---|---|
+| Høyesteretts kjæremålsutvalg | 1988-02-25 | [HR-1988-00241s](HR-1988-241-S.md) |  |  | Lnr 241/1988, jnr 113/1988. |  | Røstad, Skåre, Halvorsen | Veitrafikkloven (1965) §31; §24; Straffeprosessloven (1981) §350 |

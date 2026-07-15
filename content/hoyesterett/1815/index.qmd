@@ -1,0 +1,10 @@
+---
+title: "Høyesterett 1815"
+---
+
+Denne boken er en automatisk generert speiling av avgjørelser fra [Rettspraksis.no](https://rettspraksis.no), lisensiert [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.no). Se [LICENSE-CONTENT.md](https://github.com/sstraume97/Rettspraksis.no-klone/blob/main/LICENSE-CONTENT.md) for fullstendige vilkår. Boken inneholder 2 avgjørelser.
+
+| Instans | Dato | Publisert | Stikkord | Sammendrag | Saksgang | Parter | Forfatter | Lovhenvisninger |
+|---|---|---|---|---|---|---|---|---|
+| Høyesterett - Dom | 1815-06-30 | [Den Norske Rigstidende 1815 No. 68 side 3-4](HR-1815-1.md) | Odelsrett, Løsningssum | Den 30. juni 1815 ble Norges Høyesterett høytidlig åpnet med trompetmusikk og taler. Når den da 65 år gamle høyesterett… | Høyesterett HR-1815-1, Ordens No. 2, Løbe No. 1/1815 | Christopher Evensen Hannevold paa sin Hustru Anne Henrichsdatters Vegne mot Grosserer Peder von Cappelen og Amtsforvalt… | Collett, Debes, Motzfeldt, Mandix, Omsen, Kiønig, Arntzen, Krigsassessor Brochmann, Bull |  |
+| Høyesterett - Dom | 1815-07-13 | [Den Norske Rigstidende 1815 No. 70 side 4](HR-1815-10.md) |  | Denne publiseringen er basert på Riksarkivets transkripsjon av Høyesteretts voteringsprotokoll, samt domslutning hentet… | Høyesterett HR-1815-10, Ordens No. 22, Løbe No. 10/1815 | Gunder Knudsen Toverud mot Adminstrationen for det Ankerske Fideicommis | Krigsassessor Brochmann, Motzfeldt, Kiønig, Collett, Omsen, Mandix, Bull |  |

@@ -1,0 +1,26 @@
+project:
+  type: book
+book:
+  title: Høyesterett 1815
+  subtitle: Speilet fra Rettspraksis.no (CC BY-NC-SA 4.0)
+  date: '2026-07-15'
+  chapters:
+  - index.qmd
+  - HR-1815-1.md
+  - HR-1815-10.md
+  page-footer:
+    center: 'Kilde: [rettspraksis.no](https://rettspraksis.no) — CC BY-NC-SA 4.0 —
+      ikke-kommersiell speiling'
+lang: nb
+format:
+  html:
+    theme: cosmo
+  pdf:
+    documentclass: report
+    pdf-engine: xelatex
+    toc: true
+    mainfont: Noto Serif
+    output-file: hoyesterett-1815
+  epub:
+    toc: true
+    output-file: hoyesterett-1815

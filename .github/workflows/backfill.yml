@@ -1,0 +1,59 @@
+name: Backfill import
+
+# Gradually imports the full historical set of court decisions from
+# Rettspraksis.no, resuming from state/sync_state.json between runs.
+# Respects the site's robots.txt Crawl-delay (15s), so each run only gets
+# through a bounded chunk (~60 min budget) — becomes a no-op once
+# state.backfill.complete is true.
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
+    inputs:
+      budget_minutes:
+        description: "Maks minutter å bruke på henting denne kjøringen"
+        default: "60"
+        required: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: rettspraksis-backfill
+  cancel-in-progress: false
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pandoc
+        run: sudo apt-get update && sudo apt-get install -y pandoc
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run backfill
+        run: |
+          python scripts/fetch_pages.py --mode backfill \
+            --budget-minutes "${{ github.event.inputs.budget_minutes || '60' }}"
+
+      - name: Commit and push progress
+        run: |
+          git config user.name "rettspraksis-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add content/ state/sync_state.json
+          if git diff --cached --quiet; then
+            echo "Ingen endringer å committe."
+          else
+            git commit -m "backfill: importer flere avgjørelser [skip ci]"
+            git pull --rebase origin "${GITHUB_REF_NAME}"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi
