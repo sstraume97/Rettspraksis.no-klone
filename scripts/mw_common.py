@@ -160,9 +160,7 @@ class MediaWikiClient:
                 return
 
 
-def load_state(path: Path) -> dict:
-    if path.exists():
-        return json.loads(path.read_text(encoding="utf-8"))
+def _default_state() -> dict:
     return {
         "backfill": {
             "complete": False,
@@ -172,7 +170,20 @@ def load_state(path: Path) -> dict:
             "pages_imported": 0,
         },
         "last_rc_timestamp": None,
+        "last_published_ref": None,
     }
+
+
+def load_state(path: Path) -> dict:
+    """Load state, backfilling any keys missing from an older on-disk schema."""
+    state = _default_state()
+    if path.exists():
+        loaded = json.loads(path.read_text(encoding="utf-8"))
+        state["backfill"].update(loaded.get("backfill", {}))
+        for key in ("last_rc_timestamp", "last_published_ref"):
+            if key in loaded:
+                state[key] = loaded[key]
+    return state
 
 
 def save_state(path: Path, state: dict) -> None:

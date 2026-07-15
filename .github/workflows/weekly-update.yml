@@ -1,9 +1,14 @@
 name: Weekly update
 
-# Fetches new/changed pages since last run (independent of backfill status),
-# rebuilds only the affected year-books, renders HTML+PDF+EPUB with Quarto,
-# publishes PDF/EPUB as GitHub Release assets, and deploys the HTML site to
-# GitHub Pages (preserving previously published, untouched books).
+# Fetches new/changed pages from Rettspraksis.no since last run, commits
+# them, then determines *every* book that needs (re)building by diffing
+# content/ against state.last_published_ref. That diff — not just this run's
+# own recentchanges fetch — is what drives the build: backfill.yml pushes
+# newly imported content to main every 6 hours all week without ever
+# building or publishing books itself, so this is what sweeps all of that
+# up too. Renders HTML+PDF+EPUB with Quarto, publishes PDF/EPUB as GitHub
+# Release assets, and deploys the HTML site to GitHub Pages (preserving
+# previously published, untouched books via keep_files).
 
 on:
   schedule:
@@ -43,48 +48,89 @@ jobs:
       - name: Install Python dependencies
         run: pip install -r requirements.txt
 
-      - name: Fetch changed/new pages
-        id: fetch
+      - name: Read last published ref
+        id: prev
         run: |
-          python scripts/fetch_pages.py --mode recentchanges | tee /tmp/fetch.log
-          TOUCHED=$(grep '^TOUCHED_JSON=' /tmp/fetch.log | sed 's/^TOUCHED_JSON=//')
-          echo "touched=$TOUCHED" >> "$GITHUB_OUTPUT"
+          PREV=$(python -c "import json; print(json.load(open('state/sync_state.json')).get('last_published_ref') or '')")
+          echo "ref=$PREV" >> "$GITHUB_OUTPUT"
 
-      - name: Build touched books
-        if: steps.fetch.outputs.touched != '[]'
-        run: python scripts/build_books.py --touched-json '${{ steps.fetch.outputs.touched }}'
+      - name: Fetch changed/new pages from Rettspraksis.no
+        run: python scripts/fetch_pages.py --mode recentchanges
 
-      - name: Commit source changes
+      - name: Commit fetched content
         run: |
           git config user.name "rettspraksis-bot"
           git config user.email "actions@users.noreply.github.com"
           git add content/ state/sync_state.json
           if git diff --cached --quiet; then
-            echo "Ingen endringer å committe."
+            echo "Ingen nye/endrede sider denne uken."
           else
             git commit -m "weekly-update: oppdater innhold [skip ci]"
             git pull --rebase origin "${GITHUB_REF_NAME}"
             git push origin "HEAD:${GITHUB_REF_NAME}"
           fi
 
+      - name: Determine books to (re)build since last publish
+        id: touched
+        run: |
+          python scripts/diff_touched.py --since "${{ steps.prev.outputs.ref }}" | tee /tmp/touched.log
+          TOUCHED=$(grep '^TOUCHED_JSON=' /tmp/touched.log | sed 's/^TOUCHED_JSON=//')
+          echo "touched=$TOUCHED" >> "$GITHUB_OUTPUT"
+
+      - name: Build touched books
+        if: steps.touched.outputs.touched != '[]'
+        run: python scripts/build_books.py --touched-json '${{ steps.touched.outputs.touched }}'
+
+      - name: Commit generated book files
+        if: steps.touched.outputs.touched != '[]'
+        run: |
+          git config user.name "rettspraksis-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add content/
+          if git diff --cached --quiet; then
+            echo "Ingen bok-endringer å committe."
+          else
+            git commit -m "weekly-update: regenerer bøker [skip ci]"
+            git pull --rebase origin "${GITHUB_REF_NAME}"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          fi
+
       - name: Render touched books
-        if: steps.fetch.outputs.touched != '[]'
-        run: python scripts/render_books.py --touched-json '${{ steps.fetch.outputs.touched }}'
+        if: steps.touched.outputs.touched != '[]'
+        run: python scripts/render_books.py --touched-json '${{ steps.touched.outputs.touched }}'
 
       - name: Publish GitHub Releases (PDF/EPUB)
-        if: steps.fetch.outputs.touched != '[]'
+        if: steps.touched.outputs.touched != '[]'
         env:
           GH_TOKEN: ${{ github.token }}
-        run: python scripts/publish_releases.py --touched-json '${{ steps.fetch.outputs.touched }}'
+        run: python scripts/publish_releases.py --touched-json '${{ steps.touched.outputs.touched }}'
 
       - name: Build landing page
-        if: steps.fetch.outputs.touched != '[]'
+        if: steps.touched.outputs.touched != '[]'
         run: python scripts/build_index.py
 
       - name: Deploy to GitHub Pages
-        if: steps.fetch.outputs.touched != '[]'
+        if: steps.touched.outputs.touched != '[]'
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./site_stage
           keep_files: true
+
+      - name: Record published ref
+        if: steps.touched.outputs.touched != '[]'
+        run: |
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          HEAD_SHA=$(git rev-parse HEAD)
+          python -c "
+          import json
+          path = 'state/sync_state.json'
+          state = json.load(open(path))
+          state['last_published_ref'] = '$HEAD_SHA'
+          json.dump(state, open(path, 'w'), indent=2, ensure_ascii=False, sort_keys=True)
+          "
+          git config user.name "rettspraksis-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add state/sync_state.json
+          git commit -m "weekly-update: registrer publisert ref [skip ci]"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
