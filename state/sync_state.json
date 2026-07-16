@@ -1,10 +1,12 @@
 {
   "backfill": {
-    "cmcontinue": "page|52542d313937352d343033|164090",
+    "cmcontinue": "page|4c422d313939372d31373135|144393",
     "complete": false,
-    "completed_courts": [],
-    "current_court": "hoyesterett",
-    "pages_imported": 32998
+    "completed_courts": [
+      "hoyesterett"
+    ],
+    "current_court": "lagmannsrett",
+    "pages_imported": 44003
   },
   "last_published_ref": null,
   "last_rc_timestamp": null
